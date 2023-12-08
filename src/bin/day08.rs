@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::vec::Vec;
 use lazy_static::lazy_static;
+use num::integer::lcm;
 use regex::Regex;
 use advent_lib::read::read_sectioned_input;
 
@@ -76,20 +77,6 @@ fn part2(input: &(Vec<String>, Vec<Input>)) -> usize {
         }
     }
     cycles.into_iter().reduce(|a, b| lcm(a, b)).unwrap()
-}
-
-fn lcm(a: usize, b: usize) -> usize {
-    (a * b) / gcd(a, b)
-}
-fn gcd(a: usize, b: usize) -> usize {
-    let mut a = a;
-    let mut b = b;
-    while b != 0 {
-        let t = a;
-        a = b;
-        b = t % b;
-    }
-    a
 }
 
 fn main() {
