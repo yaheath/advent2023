@@ -92,37 +92,25 @@ impl FromStr for Hand {
 }
 
 fn get_hand_type(cards: &[Card; 5]) -> HandType {
-    if let Some(wild_idx) = cards.iter().position(|c| *c == Card::CW) {
-        if cards.iter().filter(|c| **c == Card::CW).count() >= 4 {
-            // don't recursively search hands with 4 or 5 wilds
-            return HandType::Five;
-        }
-        let t = cards.iter()
-            .filter(|c| **c != Card::CW)
-            .sorted()
-            .dedup()
-            .map(|c| {
-                let mut newhand = cards.clone();
-                newhand[wild_idx] = *c;
-                get_hand_type(&newhand)
-            })
-            .max()
-            .unwrap();
-        return t;
-    }
-
-    let counts = cards.iter()
+    let mut counts = cards.iter()
         .sorted()
         .dedup_with_count()
-        .map(|(n,_)| n)
         .sorted()
         .collect::<Vec<_>>();
 
+    if let Some(idx) = counts.iter().position(|tup| *tup.1 == Card::CW) {
+        let nwilds = counts[idx].0;
+        if nwilds >= 4 { return HandType::Five }
+        counts = counts.into_iter().filter(|tup| *tup.1 != Card::CW).collect();
+        let end = counts.len() - 1;
+        let tup = counts[end];
+        counts[end] = (tup.0 + nwilds, tup.1);
+    }
     if counts.len() == 1 {
         HandType::Five
     }
     else if counts.len() == 2 {
-        if counts[1] == 4 {
+        if counts[1].0 == 4 {
             HandType::Four
         }
         else {
@@ -130,7 +118,7 @@ fn get_hand_type(cards: &[Card; 5]) -> HandType {
         }
     }
     else if counts.len() == 3 {
-        if counts[2] == 3 {
+        if counts[2].0 == 3 {
             HandType::Three
         }
         else {
