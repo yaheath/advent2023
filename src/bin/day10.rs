@@ -138,11 +138,7 @@ fn part2(input: &Vec<String>) -> usize {
     let map = PipeMap::from_input(input);
     map.grid.x_bounds_orig()
         .cartesian_product(map.grid.y_bounds_orig())
-        .filter(|(x,y)| {
-            let ins = map.is_inside(Coord2D::new(*x,*y));
-            //println!("{x},{y} {ins}");
-            ins
-        })
+        .filter(|(x,y)| map.is_inside(Coord2D::new(*x,*y)))
         .count()
 }
 
