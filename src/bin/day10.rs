@@ -16,12 +16,10 @@ enum Cell {
     PipeSW,
 }
 
-#[allow(dead_code)]
 struct PipeMap {
     grid: Grid<Cell>,
     //start_pos: Coord2D,
     path: HashMap<Coord2D, usize>,
-    interior: HashSet<Coord2D>,
 }
 
 impl PipeMap {
@@ -69,8 +67,29 @@ impl PipeMap {
         };
         grid.set_c(start_pos, replace);
         let path = find_path(&grid, start_pos);
-        let interior = find_interior(&grid, &path);
-        Self { grid, path, interior }
+        Self { grid, path }
+    }
+
+    fn find_interior(&self) -> HashSet<Coord2D> {
+        let mut interior: HashSet<Coord2D> = HashSet::new();
+        for y in self.grid.y_bounds() {
+            let mut inside = false;
+            for x in self.grid.x_bounds() {
+                let loc = Coord2D::new(x, y);
+                if self.path.contains_key(&loc) {
+                    match self.grid.get_c(loc) {
+                        Cell::PipeNS | Cell::PipeNE | Cell::PipeNW => { inside = !inside; },
+                        _ => {},
+                    }
+                }
+                else {
+                    if inside {
+                        interior.insert(loc);
+                    }
+                }
+            }
+        }
+        interior
     }
 }
 
@@ -101,36 +120,15 @@ fn find_path(grid: &Grid<Cell>, start_pos: Coord2D) -> HashMap<Coord2D, usize> {
     path
 }
 
-fn find_interior(grid: &Grid<Cell>, path: &HashMap<Coord2D,usize>) -> HashSet<Coord2D> {
-    let mut interior: HashSet<Coord2D> = HashSet::new();
-    for y in grid.y_bounds() {
-        let mut inside = false;
-        for x in grid.x_bounds() {
-            let loc = Coord2D::new(x, y);
-            if path.contains_key(&loc) {
-                match grid.get_c(loc) {
-                    Cell::PipeNS | Cell::PipeNE | Cell::PipeNW => { inside = !inside; },
-                    _ => {},
-                }
-            }
-            else {
-                if inside {
-                    interior.insert(loc);
-                }
-            }
-        }
-    }
-    interior
-}
-
 fn part1(input: &Vec<String>) -> usize {
     let map = PipeMap::from_input(input);
-    map.path.values().copied().max().unwrap()
+    map.path.into_values().max().unwrap()
 }
 
 fn part2(input: &Vec<String>) -> usize {
     let map = PipeMap::from_input(input);
-    map.interior.len()
+    let interior = map.find_interior();
+    interior.len()
 }
 
 fn main() {
