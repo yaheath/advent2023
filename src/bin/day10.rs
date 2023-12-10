@@ -105,28 +105,13 @@ fn find_interior(grid: &Grid<Cell>, path: &HashMap<Coord2D,usize>) -> HashSet<Co
     let mut interior: HashSet<Coord2D> = HashSet::new();
     for y in grid.y_bounds() {
         let mut inside = false;
-        let mut inrun: Option<Cell> = None;
         for x in grid.x_bounds() {
             let loc = Coord2D::new(x, y);
             if path.contains_key(&loc) {
-                let cell = grid.get_c(loc);
-                let (cross, new_inrun) = match (cell, inrun) {
-                    (Cell::PipeNE, None) => (false, Some(Cell::PipeNE)),
-                    (Cell::PipeSE, None) => (false, Some(Cell::PipeSE)),
-
-                    (Cell::PipeEW, Some(x)) => (false, Some(x)),
-
-                    (Cell::PipeNW, Some(Cell::PipeSE)) => (true, None),
-                    (Cell::PipeSW, Some(Cell::PipeNE)) => (true, None),
-                    (Cell::PipeNW, Some(Cell::PipeNE)) => (false, None),
-                    (Cell::PipeSW, Some(Cell::PipeSE)) => (false, None),
-
-                    (Cell::PipeNS, None) => (true, None),
-
-                    _ => panic!("{loc:?} {cell:?} {inrun:?}"),
-                };
-                if cross { inside = !inside; }
-                inrun = new_inrun;
+                match grid.get_c(loc) {
+                    Cell::PipeNS | Cell::PipeNE | Cell::PipeNW => { inside = !inside; },
+                    _ => {},
+                }
             }
             else {
                 if inside {
