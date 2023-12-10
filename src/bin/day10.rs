@@ -1,6 +1,5 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::vec::Vec;
-use itertools::Itertools;
 use advent_lib::coords::Coord2D;
 use advent_lib::read::read_input;
 use advent_lib::grid::Grid;
@@ -17,10 +16,12 @@ enum Cell {
     PipeSW,
 }
 
+#[allow(dead_code)]
 struct PipeMap {
     grid: Grid<Cell>,
     //start_pos: Coord2D,
     path: HashMap<Coord2D, usize>,
+    interior: HashSet<Coord2D>,
 }
 
 impl PipeMap {
@@ -68,37 +69,8 @@ impl PipeMap {
         };
         grid.set_c(start_pos, replace);
         let path = find_path(&grid, start_pos);
-        Self { grid, path }
-    }
-
-    fn is_inside(&self, loc: Coord2D) -> bool {
-        if self.path.contains_key(&loc) { return false; }
-        let mut crosses: usize = 0;
-        let mut inrun: Option<Cell> = None;
-        for x in loc.x + 1 .. self.grid.x_bounds().end {
-            let c = Coord2D::new(x, loc.y);
-            if self.path.contains_key(&c) {
-                let cell = self.grid.get_c(c);
-                let (cross, new_inrun) = match (cell, inrun) {
-                    (Cell::PipeNE, None) => (0, Some(Cell::PipeNE)),
-                    (Cell::PipeSE, None) => (0, Some(Cell::PipeSE)),
-
-                    (Cell::PipeEW, Some(x)) => (0, Some(x)),
-
-                    (Cell::PipeNW, Some(Cell::PipeSE)) => (1, None),
-                    (Cell::PipeSW, Some(Cell::PipeNE)) => (1, None),
-                    (Cell::PipeNW, Some(Cell::PipeNE)) => (0, None),
-                    (Cell::PipeSW, Some(Cell::PipeSE)) => (0, None),
-
-                    (Cell::PipeNS, None) => (1, None),
-
-                    _ => panic!("{c:?} {cell:?} {inrun:?}"),
-                };
-                crosses += cross;
-                inrun = new_inrun;
-            }
-        }
-        crosses & 1 == 1
+        let interior = find_interior(&grid, &path);
+        Self { grid, path, interior }
     }
 }
 
@@ -129,6 +101,43 @@ fn find_path(grid: &Grid<Cell>, start_pos: Coord2D) -> HashMap<Coord2D, usize> {
     path
 }
 
+fn find_interior(grid: &Grid<Cell>, path: &HashMap<Coord2D,usize>) -> HashSet<Coord2D> {
+    let mut interior: HashSet<Coord2D> = HashSet::new();
+    for y in grid.y_bounds() {
+        let mut inside = false;
+        let mut inrun: Option<Cell> = None;
+        for x in grid.x_bounds() {
+            let loc = Coord2D::new(x, y);
+            if path.contains_key(&loc) {
+                let cell = grid.get_c(loc);
+                let (cross, new_inrun) = match (cell, inrun) {
+                    (Cell::PipeNE, None) => (false, Some(Cell::PipeNE)),
+                    (Cell::PipeSE, None) => (false, Some(Cell::PipeSE)),
+
+                    (Cell::PipeEW, Some(x)) => (false, Some(x)),
+
+                    (Cell::PipeNW, Some(Cell::PipeSE)) => (true, None),
+                    (Cell::PipeSW, Some(Cell::PipeNE)) => (true, None),
+                    (Cell::PipeNW, Some(Cell::PipeNE)) => (false, None),
+                    (Cell::PipeSW, Some(Cell::PipeSE)) => (false, None),
+
+                    (Cell::PipeNS, None) => (true, None),
+
+                    _ => panic!("{loc:?} {cell:?} {inrun:?}"),
+                };
+                if cross { inside = !inside; }
+                inrun = new_inrun;
+            }
+            else {
+                if inside {
+                    interior.insert(loc);
+                }
+            }
+        }
+    }
+    interior
+}
+
 fn part1(input: &Vec<String>) -> usize {
     let map = PipeMap::from_input(input);
     map.path.values().copied().max().unwrap()
@@ -136,10 +145,7 @@ fn part1(input: &Vec<String>) -> usize {
 
 fn part2(input: &Vec<String>) -> usize {
     let map = PipeMap::from_input(input);
-    map.grid.x_bounds_orig()
-        .cartesian_product(map.grid.y_bounds_orig())
-        .filter(|(x,y)| map.is_inside(Coord2D::new(*x,*y)))
-        .count()
+    map.interior.len()
 }
 
 fn main() {
