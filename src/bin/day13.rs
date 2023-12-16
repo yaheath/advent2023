@@ -1,7 +1,7 @@
 use std::vec::Vec;
 use itertools::Itertools;
-use advent_lib::read::read_grouped_input;
-use advent_lib::grid::Grid;
+use ya_advent_lib::read::read_grouped_input;
+use ya_advent_lib::grid::Grid;
 
 fn mkgrid(inp: &Vec<String>) -> Grid<char> {
     Grid::from_input(inp, '.', 0, |c| c)
@@ -121,7 +121,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use advent_lib::read::grouped_test_input;
+    use ya_advent_lib::read::grouped_test_input;
 
     #[test]
     fn day13_test() {

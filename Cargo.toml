@@ -12,6 +12,6 @@ lazy_static = "*"
 itertools = "*"
 derivative = "*"
 json = "*"
-advent_lib = { version = "0.2.0", path = "../advent_lib" }
+ya_advent_lib = { version = "1.0.1", path = "../advent_lib" }
 num = "0.4.1"
 #linked-list = "0"

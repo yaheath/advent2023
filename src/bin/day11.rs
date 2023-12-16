@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, HashSet};
 use std::vec::Vec;
 use itertools::Itertools;
-use advent_lib::read::read_input;
+use ya_advent_lib::read::read_input;
 
 struct Galaxies {
     galaxies: HashSet<(i64,i64)>,
@@ -62,7 +62,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use advent_lib::read::test_input;
+    use ya_advent_lib::read::test_input;
 
     #[test]
     fn day11_test() {

@@ -1,7 +1,7 @@
 use std::vec::Vec;
 use itertools::Itertools;
-use advent_lib::read::read_input;
-use advent_lib::iter::FirstLast;
+use ya_advent_lib::read::read_input;
+use ya_advent_lib::iter::FirstLast;
 
 fn part1(input: &Vec<String>) -> u64 {
     input.iter()
@@ -44,7 +44,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use advent_lib::read::test_input;
+    use ya_advent_lib::read::test_input;
 
     #[test]
     fn day01_test() {

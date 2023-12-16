@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::vec::Vec;
-use advent_lib::read::read_input;
-use advent_lib::grid::Grid;
+use ya_advent_lib::read::read_input;
+use ya_advent_lib::grid::Grid;
 
 fn is_symbol(grid: &Grid<char>, x: i64, y: i64) -> bool {
     match grid.get(x, y) {
@@ -90,7 +90,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use advent_lib::read::test_input;
+    use ya_advent_lib::read::test_input;
 
     #[test]
     fn day03_test() {

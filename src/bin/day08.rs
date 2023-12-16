@@ -4,7 +4,7 @@ use std::vec::Vec;
 use lazy_static::lazy_static;
 use num::integer::lcm;
 use regex::Regex;
-use advent_lib::read::read_sectioned_input;
+use ya_advent_lib::read::read_sectioned_input;
 
 #[derive(Debug)]
 struct Input {
@@ -88,7 +88,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use advent_lib::read::sectioned_test_input;
+    use ya_advent_lib::read::sectioned_test_input;
 
     #[test]
     fn day08_test() {

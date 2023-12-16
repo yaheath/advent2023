@@ -3,8 +3,8 @@ use std::ops::Range;
 use std::str::FromStr;
 use std::vec::Vec;
 use itertools::Itertools;
-use advent_lib::read::read_grouped_input;
-use advent_lib::iter::FirstLast;
+use ya_advent_lib::read::read_grouped_input;
+use ya_advent_lib::iter::FirstLast;
 
 #[derive(Debug)]
 struct SeedMapEntry {
@@ -143,7 +143,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use advent_lib::read::grouped_test_input;
+    use ya_advent_lib::read::grouped_test_input;
 
     #[test]
     fn day05_test() {
