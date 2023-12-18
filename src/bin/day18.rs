@@ -4,12 +4,11 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use regex::Regex;
 use ya_advent_lib::coords::{CDir, Coord2D};
-use ya_advent_lib::infinite_grid::InfiniteGrid;
 use ya_advent_lib::read::read_input;
 
 struct Input {
     dir: CDir,
-    steps: usize,
+    steps: i64,
     color: u32,
 }
 
@@ -29,7 +28,7 @@ impl FromStr for Input {
                 'R' => CDir::E,
                 _ => panic!(),
             };
-            let steps:usize = caps.get(2).unwrap().as_str().parse::<usize>().unwrap();
+            let steps:i64 = caps.get(2).unwrap().as_str().parse::<i64>().unwrap();
             let color:u32 = u32::from_str_radix(caps.get(3).unwrap().as_str(), 16).unwrap();
             Ok(Input {dir, steps, color})
         }
@@ -39,113 +38,18 @@ impl FromStr for Input {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
-enum Cell {
-    Edge(u32),
-    Interior,
-    Undug,
-}
-
-impl From<Cell> for char {
-    fn from(v: Cell) -> char {
-        match v {
-            Cell::Edge(_) => '#',
-            Cell::Interior => '*',
-            Cell::Undug => '.',
-        }
-    }
-}
-
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-enum EdgeType {
-    Vert,
-    Horiz,
-    SCorner,
-    NCorner,
-    Other,
-}
-
-fn edge_type(grid: &InfiniteGrid<Cell>, c:Coord2D) -> EdgeType {
-    let n = matches!(grid.get_c(c + CDir::N), Cell::Edge(_));
-    let s = matches!(grid.get_c(c + CDir::S), Cell::Edge(_));
-    let e = matches!(grid.get_c(c + CDir::E), Cell::Edge(_));
-    let w = matches!(grid.get_c(c + CDir::W), Cell::Edge(_));
-    match (n, s, e, w) {
-        (true, true, false, false) => EdgeType::Vert,
-        (false, false, true, true) => EdgeType::Horiz,
-        (true, false, _, _) if e != w => EdgeType::NCorner,
-        (false, true, _, _) if e != w => EdgeType::SCorner,
-        _ => EdgeType::Other,
-    }
-}
-
-fn dig(input: &Vec<Input>) -> InfiniteGrid<Cell> {
-    let mut grid = InfiniteGrid::new(Cell::Undug);
-    let mut current = Coord2D::new(0, 0);
-    grid.set_c(current, Cell::Edge(input[0].color));
-    for i in input {
-        for _ in 0..i.steps {
-            current += i.dir;
-            grid.set_c(current, Cell::Edge(i.color));
-        }
-    }
-    for y in grid.y_bounds() {
-        let mut int = false;
-        let mut edge_start: Option<EdgeType> = None;
-        for x in grid.x_bounds() {
-            let c = grid.get(x, y);
-            match (c, int, edge_start) {
-                (Cell::Edge(_), false, None) => {
-                    match edge_type(&grid, Coord2D::new(x,y)) {
-                        EdgeType::Vert => { int = true; },
-                        EdgeType::NCorner => { edge_start = Some(EdgeType::NCorner); },
-                        EdgeType::SCorner => { edge_start = Some(EdgeType::SCorner); },
-                        _ => panic!(),
-                    }
-                },
-                (Cell::Edge(_), true, None) => {
-                    match edge_type(&grid, Coord2D::new(x,y)) {
-                        EdgeType::Vert => { int = false; },
-                        EdgeType::NCorner => { edge_start = Some(EdgeType::NCorner); },
-                        EdgeType::SCorner => { edge_start = Some(EdgeType::SCorner); },
-                        _ => panic!(),
-                    }
-                }
-                (Cell::Edge(_), _, Some(et)) => {
-                    match edge_type(&grid, Coord2D::new(x,y)) {
-                        EdgeType::Horiz => {},
-                        EdgeType::NCorner => {
-                            if et == EdgeType::SCorner {
-                                int = !int;
-                            }
-                            edge_start = None;
-                        },
-                        EdgeType::SCorner => {
-                            if et == EdgeType::NCorner {
-                                int = !int;
-                            }
-                            edge_start = None;
-                        },
-                        _ => panic!(),
-                    }
-                },
-                (Cell::Undug, false, _) => {},
-                (Cell::Undug, true, _) => {
-                    grid.set(x, y, Cell::Interior);
-                },
-                (Cell::Interior, _, _) => {},
-            }
-        }
-    }
-    grid
-}
-
-fn part1(input: &Vec<Input>) -> usize {
-    let grid = dig(input);
-    grid.iter().filter(|(_, c)| !matches!(**c, Cell::Undug)).count()
-}
-
 fn polygon_from_input(input: &Vec<Input>) -> Vec<Coord2D> {
+    let mut poly = Vec::new();
+    let mut pos = Coord2D::new(0, 0);
+    for i in input {
+        pos += Into::<Coord2D>::into(i.dir) * i.steps;
+        poly.push(pos.clone());
+    }
+    assert_eq!(poly[poly.len() - 1], Coord2D::new(0,0));
+    poly
+}
+
+fn polygon_from_input_2(input: &Vec<Input>) -> Vec<Coord2D> {
     let mut poly = Vec::new();
     let mut pos = Coord2D::new(0, 0);
     for i in input {
@@ -177,8 +81,13 @@ fn poly_area(poly: &Vec<Coord2D>) -> i64 {
     intarea + edgearea
 }
 
-fn part2(input: &Vec<Input>) -> i64 {
+fn part1(input: &Vec<Input>) -> i64 {
     let polygon = polygon_from_input(&input);
+    poly_area(&polygon)
+}
+
+fn part2(input: &Vec<Input>) -> i64 {
+    let polygon = polygon_from_input_2(&input);
     poly_area(&polygon)
 }
 
