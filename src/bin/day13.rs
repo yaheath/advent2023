@@ -4,7 +4,7 @@ use ya_advent_lib::read::read_grouped_input;
 use ya_advent_lib::grid::Grid;
 
 fn mkgrid(inp: &Vec<String>) -> Grid<char> {
-    Grid::from_input(inp, '.', 0, |c| c)
+    Grid::from_input(inp, '.', 0)
 }
 
 #[derive(Debug)]
@@ -92,7 +92,7 @@ fn find_reflection(grid: &Grid<char>, part2: bool) -> Reflection {
     if let Some(n) = check_symmetry(&rows, part2) {
         return Reflection::Vert(n);
     }
-    grid.print(|c| c);
+    grid.print();
     panic!();
 }
 

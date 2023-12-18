@@ -52,7 +52,7 @@ fn get_number(grid: &Grid<char>, x: i64, y: i64, gear_map: &mut HashMap<(i64,i64
 }
 
 fn bothparts(input: &Vec<String>) -> (u64, u64) {
-    let grid: Grid<char> = Grid::from_input(input, '.', 1, |c| c);
+    let grid: Grid<char> = Grid::from_input(input, '.', 1);
     let mut sum = 0;
     let x_width = grid.x_bounds_orig().end;
     let y_width = grid.y_bounds_orig().end;

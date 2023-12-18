@@ -10,17 +10,19 @@ enum Cell {
     Cube,
     Empty,
 }
-impl Cell {
-    fn from_char(c: char) -> Self {
-        match c {
+impl From<char> for Cell {
+    fn from(value: char) -> Self {
+        match value {
             '.' => Cell::Empty,
             'O' => Cell::Round,
             '#' => Cell::Cube,
             _ => panic!(),
         }
     }
-    fn to_char(&self) -> char {
-        match self {
+}
+impl From<Cell> for char {
+    fn from(value: Cell) -> char {
+        match value {
             Cell::Empty => '.',
             Cell::Round => 'O',
             Cell::Cube  => '#',
@@ -29,7 +31,7 @@ impl Cell {
 }
 
 fn mkgrid(input: &Vec<String>) -> Grid<Cell> {
-    Grid::from_input(input, Cell::Empty, 0, Cell::from_char)
+    Grid::from_input(input, Cell::Empty, 0)
 }
 
 fn move_rock(x: i64, y: i64, xform: GridTransform, grid: &mut Grid<Cell>) {
@@ -81,11 +83,11 @@ fn part1(input: &Vec<String>) -> i64 {
 }
 
 fn grid_to_str(grid: &Grid<Cell>) -> String {
-    grid.iter().map(|c| c.to_char()).collect()
+    grid.iter().map(|&c| Into::<char>::into(c)).collect()
 }
 fn str_to_grid(grid: &mut Grid<Cell>, s: &str) {
     let mut chars = s.chars();
-    grid.iter_mut().for_each(|c| *c = Cell::from_char(chars.next().unwrap()));
+    grid.iter_mut().for_each(|c| *c = chars.next().unwrap().into());
 }
 
 fn part2(input: &Vec<String>) -> i64 {

@@ -16,15 +16,9 @@ enum Cell {
     PipeSW,
 }
 
-struct PipeMap {
-    grid: Grid<Cell>,
-    //start_pos: Coord2D,
-    path: HashMap<Coord2D, usize>,
-}
-
-impl PipeMap {
-    fn from_input(input: &Vec<String>) -> Self {
-        let mut grid = Grid::from_input(input, Cell::Ground, 1, |c| match c {
+impl From<char> for Cell {
+    fn from(value: char) -> Self {
+        match value {
             '|' => Cell::PipeNS,
             '-' => Cell::PipeEW,
             'L' => Cell::PipeNE,
@@ -34,7 +28,19 @@ impl PipeMap {
             'S' => Cell::Start,
             '.' => Cell::Ground,
             _ => panic!(),
-        });
+        }
+    }
+}
+
+struct PipeMap {
+    grid: Grid<Cell>,
+    //start_pos: Coord2D,
+    path: HashMap<Coord2D, usize>,
+}
+
+impl PipeMap {
+    fn from_input(input: &Vec<String>) -> Self {
+        let mut grid = Grid::from_input(input, Cell::Ground, 1);
         let start_pos = grid.iter_with_coord()
             .find(|(c,_,_)| *c == Cell::Start)
             .map(|(_,x,y)| Coord2D::new(x,y))
