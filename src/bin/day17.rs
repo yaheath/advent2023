@@ -19,40 +19,32 @@ impl From<char> for Cell {
 fn solve(input: &Vec<String>, part2: bool) -> usize {
     let grid: Grid<Cell> = Grid::from_input(input, Cell {loss: 0}, 0);
     let target = Coord2D::new(grid.x_bounds().end - 1, grid.y_bounds().end - 1);
-    let mut queue: BinaryHeap<(Reverse<usize>,Coord2D,usize,CDir)> = BinaryHeap::new();
-    let mut traversed: HashMap<(Coord2D, CDir, usize), usize> = HashMap::new();
+    let mut queue: BinaryHeap<(Reverse<usize>,Coord2D,CDir)> = BinaryHeap::new();
+    let mut traversed: HashMap<(Coord2D, CDir), usize> = HashMap::new();
+
+    let (minsteps, maxsteps) = if part2 { (4, 10) } else { (1, 3) };
 
     let start = Coord2D::new(0,0);
-    queue.push((Reverse(target.mdist_to(&start) as usize), start, 1, CDir::E));
-    queue.push((Reverse(target.mdist_to(&start) as usize), start, 1, CDir::S));
-    let minsteps = if part2 { 4 } else { 0 };
-    let maxsteps = if part2 { 10 } else { 3 };
 
-    while let Some((cost, loc, steps, dir)) = queue.pop() {
+    queue.push((Reverse(start.mdist_to(&target) as usize), start, CDir::E));
+    queue.push((Reverse(start.mdist_to(&target) as usize), start, CDir::S));
+
+    while let Some((cost, loc, dir)) = queue.pop() {
         if loc == target {
-            if !part2 || steps >= 4 {
-                return cost.0;
-            }
-            continue;
+            return cost.0;
         }
-        let mut nextdirs: Vec<(CDir, usize)> = Vec::new();
-        if steps >= minsteps {
-            nextdirs.push((dir.left(), 1));
-            nextdirs.push((dir.right(), 1));
-        }
-        if steps < maxsteps {
-            nextdirs.push((dir, steps + 1));
-        }
-        for (d, nsteps) in nextdirs {
-            let nloc = loc + d;
-            if !grid.contains_coord(nloc) { continue; }
-            let ncost = grid.get(nloc.x, nloc.y).loss as usize + (
-                cost.0 - loc.mdist_to(&target) as usize
-                );
-            let tkey = (nloc, d, nsteps);
-            if !traversed.contains_key(&tkey) || traversed[&tkey] > ncost {
-                traversed.insert(tkey, ncost);
-                queue.push((Reverse(ncost + nloc.mdist_to(&target) as usize), nloc, nsteps, d));
+        let mut loc = loc;
+        let mut cost = cost.0 - loc.mdist_to(&target) as usize;
+        for s in 1 ..= maxsteps {
+            loc += dir;
+            if !grid.contains_coord(loc) { break; }
+            cost += grid.get_c(loc).loss as usize;
+            if s < minsteps { continue; }
+            let qcost = Reverse(cost + loc.mdist_to(&target) as usize);
+            if !traversed.contains_key(&(loc, dir)) || traversed[&(loc, dir)] > cost {
+                traversed.insert((loc, dir), cost);
+                queue.push((qcost, loc, dir.left()));
+                queue.push((qcost, loc, dir.right()));
             }
         }
     }
