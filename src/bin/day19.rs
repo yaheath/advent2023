@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ops::Range;
 use std::str::FromStr;
 use std::vec::Vec;
 use ya_advent_lib::read::read_sectioned_input;
@@ -53,7 +54,7 @@ impl FromStr for RuleOrDest {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut itr1 = s.split(':');
-        let mut first = itr1.next().unwrap();
+        let first = itr1.next().unwrap();
         if let Some(dest) = itr1.next() {
             let mut itr2 = first.chars();
             let rating = itr2.next().unwrap();
@@ -149,8 +150,120 @@ fn part1(input: &(Vec<Workflow>, Vec<Part>)) -> usize {
         .sum()
 }
 
+#[derive(Clone)]
+struct Partition {
+    x: Range<usize>,
+    m: Range<usize>,
+    a: Range<usize>,
+    s: Range<usize>,
+}
+
+impl Partition {
+    fn new() -> Self {
+        Self {
+            x: 1..4001,
+            m: 1..4001,
+            a: 1..4001,
+            s: 1..4001,
+        }
+    }
+    fn get(&self, r: char) -> Range<usize> {
+        match r {
+            'x' => self.x.clone(),
+            'm' => self.m.clone(),
+            'a' => self.a.clone(),
+            's' => self.s.clone(),
+            _ => panic!(),
+        }
+    }
+    fn set(&self, r: char, val: Range<usize>) -> Self {
+        let mut new = self.clone();
+        match r {
+            'x' => new.x = val,
+            'm' => new.m = val,
+            'a' => new.a = val,
+            's' => new.s = val,
+            _ => panic!(),
+        }
+        new
+    }
+    fn combinations(&self) -> usize {
+        (self.x.end - self.x.start) *
+        (self.m.end - self.m.start) *
+        (self.a.end - self.a.start) *
+        (self.s.end - self.s.start)
+    }
+}
+
+fn traverse(
+    wfmap: &HashMap<String, &Workflow>,
+    cur_wf: String,
+    cur_rule: usize,
+    cur_partition: Partition,
+) -> Vec<Partition> {
+    let mut wf = wfmap[&cur_wf];
+    let mut cur_rule = cur_rule;
+    loop {
+        match &wf.rules[cur_rule] {
+            RuleOrDest::R(r) => {
+                let range = cur_partition.get(r.rating);
+                if r.op == '<' && range.end <= r.val
+                  || r.op == '>' && range.start > r.val {
+                    match &r.dest {
+                        Dest::Accept => {
+                            return vec![cur_partition];
+                        },
+                        Dest::Reject => {
+                            return vec![];
+                        },
+                        Dest::Rule(r) => {
+                            wf = wfmap[r];
+                            cur_rule = 0;
+                        },
+                    }
+                }
+                else if r.op == '<' && range.start < r.val
+                  || r.op == '>' && range.end > r.val + 1 {
+                    let val = if r.op == '<' { r.val } else { r.val + 1 };
+                    let r1 = range.start .. val;
+                    let r2 = val .. range.end;
+                    let p1 = cur_partition.set(r.rating, r1);
+                    let p2 = cur_partition.set(r.rating, r2);
+                    let mut a1 = traverse(wfmap, wf.name.clone(), cur_rule, p1);
+                    let mut a2 = traverse(wfmap, wf.name.clone(), cur_rule, p2);
+                    a1.append(&mut a2);
+                    return a1;
+                }
+                else {
+                    cur_rule += 1;
+                }
+            },
+            RuleOrDest::D(d) => {
+                match d {
+                    Dest::Accept => {
+                        return vec![cur_partition];
+                    },
+                    Dest::Reject => {
+                        return vec![];
+                    },
+                    Dest::Rule(r) => {
+                        wf = wfmap[r];
+                        cur_rule = 0;
+                    },
+                }
+            }
+        }
+    }
+}
+
 fn part2(input: &(Vec<Workflow>, Vec<Part>)) -> usize {
-    0
+    let wfmap: HashMap<String, &Workflow> = HashMap::from_iter(
+        input.0.iter().map(|i| (i.name.clone(), i))
+    );
+    traverse(&wfmap, "in".into(), 0, Partition::new())
+        .iter()
+        .map(|v| v.combinations())
+        .sum()
 }
 
 fn main() {
@@ -168,6 +281,6 @@ mod tests {
     fn day19_test() {
         let input: (Vec<Workflow>, Vec<Part>) = sectioned_test_input(include_str!("day19.testinput"));
         assert_eq!(part1(&input), 19114);
-        assert_eq!(part2(&input), 0);
+        assert_eq!(part2(&input), 167409079868000);
     }
 }
