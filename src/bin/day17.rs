@@ -1,9 +1,8 @@
-use std::collections::{BinaryHeap, HashMap};
-use std::cmp::Reverse;
 use std::vec::Vec;
 use ya_advent_lib::read::read_input;
 use ya_advent_lib::grid::Grid;
 use ya_advent_lib::coords::{CDir, Coord2D};
+use ya_advent_lib::algorithm::a_star;
 
 #[derive(Copy, Clone)]
 struct Cell {
@@ -19,36 +18,36 @@ impl From<char> for Cell {
 fn solve(input: &Vec<String>, part2: bool) -> usize {
     let grid: Grid<Cell> = Grid::from_input(input, Cell {loss: 0}, 0);
     let target = Coord2D::new(grid.x_bounds().end - 1, grid.y_bounds().end - 1);
-    let mut queue: BinaryHeap<(Reverse<usize>,Coord2D,CDir)> = BinaryHeap::new();
-    let mut traversed: HashMap<(Coord2D, CDir), usize> = HashMap::new();
-
+    let start = Coord2D::new(-1,0);
     let (minsteps, maxsteps) = if part2 { (4, 10) } else { (1, 3) };
 
-    let start = Coord2D::new(0,0);
-
-    queue.push((Reverse(start.mdist_to(&target) as usize), start, CDir::E));
-    queue.push((Reverse(start.mdist_to(&target) as usize), start, CDir::S));
-
-    while let Some((cost, loc, dir)) = queue.pop() {
-        if loc == target {
-            return cost.0;
-        }
-        let mut loc = loc;
-        let mut cost = cost.0 - loc.mdist_to(&target) as usize;
-        for s in 1 ..= maxsteps {
-            loc += dir;
-            if !grid.contains_coord(loc) { break; }
-            cost += grid.get_c(loc).loss as usize;
-            if s < minsteps { continue; }
-            let qcost = Reverse(cost + loc.mdist_to(&target) as usize);
-            if !traversed.contains_key(&(loc, dir)) || traversed[&(loc, dir)] > cost {
-                traversed.insert((loc, dir), cost);
-                queue.push((qcost, loc, dir.left()));
-                queue.push((qcost, loc, dir.right()));
+    a_star(
+        (start, CDir::E),
+        |c| c.0 == target,
+        |(loc, dir)| {
+            if loc == start {
+                vec![
+                    ((Coord2D::new(0,0), CDir::E), 0),
+                    ((Coord2D::new(0,0), CDir::S), 0),
+                ]
             }
-        }
-    }
-    panic!();
+            else {
+                let mut loc = loc;
+                let mut cost = 0;
+                let mut neighs: Vec<((Coord2D, CDir), usize)> = Vec::new();
+                for s in 1 ..= maxsteps {
+                    loc += dir;
+                    if !grid.contains_coord(loc) { break; }
+                    cost += grid.get_c(loc).loss as usize;
+                    if s < minsteps { continue; }
+                    neighs.push(((loc, dir.left()), cost));
+                    neighs.push(((loc, dir.right()), cost));
+                }
+                neighs
+            }
+        },
+        |c| c.0.mdist_to(&target) as usize,
+    ).unwrap()
 }
 
 fn part1(input: &Vec<String>) -> usize {
