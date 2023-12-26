@@ -11,6 +11,7 @@ dependencies = [
  "json",
  "lazy_static",
  "num",
+ "rand",
  "regex",
  "ya_advent_lib",
 ]
@@ -598,7 +599,7 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 
 [[package]]
 name = "ya_advent_lib"
-version = "1.1.1"
+version = "1.2.0"
 dependencies = [
  "crossterm",
  "itertools",
