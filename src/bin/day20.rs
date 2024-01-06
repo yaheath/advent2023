@@ -168,7 +168,7 @@ fn part1(input: &[Module]) -> usize {
 fn part2(input: &[Module]) -> usize {
     let modules = setup(input);
     /*
-    println!("digraph moudles {{");
+    println!("digraph modules {{");
     modules.values().for_each(|m| {
         m.targets.iter().for_each(|t| {
             println!("{} -> {}", m.name, t);
@@ -207,8 +207,7 @@ fn part2(input: &[Module]) -> usize {
     for _ in 1.. {
         system.step();
         if counters.borrow().values().all(|v| *v > 0) {
-            let val = counters.borrow().values().copied().reduce(lcm).unwrap();
-            return val;
+            return counters.borrow().values().copied().reduce(lcm).unwrap();
         }
     }
     unreachable!();
