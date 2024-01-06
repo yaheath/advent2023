@@ -12,7 +12,7 @@ lazy_static = "*"
 itertools = "*"
 derivative = "*"
 json = "*"
-ya_advent_lib = { version = "1.2.1", path = "../advent_lib" }
+ya_advent_lib = { version = "1.3.0", path = "../advent_lib" }
 num = "0.4.1"
 rand = "0.8.5"
 #linked-list = "0"
