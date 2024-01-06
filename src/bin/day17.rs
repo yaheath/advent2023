@@ -15,7 +15,7 @@ impl From<char> for Cell {
     }
 }
 
-fn solve(input: &Vec<String>, part2: bool) -> usize {
+fn solve(input: &[String], part2: bool) -> usize {
     let grid: Grid<Cell> = Grid::from_input(input, Cell {loss: 0}, 0);
     let target = Coord2D::new(grid.x_bounds().end - 1, grid.y_bounds().end - 1);
     let start = Coord2D::new(-1,0);
@@ -50,11 +50,11 @@ fn solve(input: &Vec<String>, part2: bool) -> usize {
     ).unwrap()
 }
 
-fn part1(input: &Vec<String>) -> usize {
+fn part1(input: &[String]) -> usize {
     solve(input, false)
 }
 
-fn part2(input: &Vec<String>) -> usize {
+fn part2(input: &[String]) -> usize {
     solve(input, true)
 }
 

@@ -63,15 +63,15 @@ impl Module {
     }
     fn set_state(&mut self, bitnum: usize, on: bool) {
         if on {
-            self.state = self.state | (1<<bitnum);
+            self.state |= 1<<bitnum;
         }
         else {
-            self.state = self.state & !(1<<bitnum);
+            self.state &= !(1<<bitnum);
         }
     }
 }
 
-fn setup(input: &Vec<Module>) -> HashMap<String,Module> {
+fn setup(input: &[Module]) -> HashMap<String,Module> {
     let mut out: HashMap<String,Module> = HashMap::new();
     for i in input {
         let m = i.clone();
@@ -90,6 +90,7 @@ fn setup(input: &Vec<Module>) -> HashMap<String,Module> {
     out
 }
 
+#[allow(clippy::type_complexity)]
 struct System<'a> {
     modules: HashMap<String,Module>,
     steps: usize,
@@ -157,14 +158,14 @@ impl<'a> System<'a> {
     }
 }
 
-fn part1(input: &Vec<Module>) -> usize {
+fn part1(input: &[Module]) -> usize {
     let modules = setup(input);
     let mut system = System::new(modules);
     system.run_for(1000);
     system.n_low * system.n_high
 }
 
-fn part2(input: &Vec<Module>) -> usize {
+fn part2(input: &[Module]) -> usize {
     let modules = setup(input);
     /*
     println!("digraph moudles {{");
@@ -206,7 +207,7 @@ fn part2(input: &Vec<Module>) -> usize {
     for _ in 1.. {
         system.step();
         if counters.borrow().values().all(|v| *v > 0) {
-            let val = counters.borrow().values().copied().reduce(|a, b| lcm(a, b)).unwrap();
+            let val = counters.borrow().values().copied().reduce(lcm).unwrap();
             return val;
         }
     }

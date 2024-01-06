@@ -24,7 +24,7 @@ impl FromStr for Input {
 }
 
 #[allow(dead_code)]
-fn dot(input: &Vec<Input>) -> std::io::Result<()> {
+fn dot(input: &[Input]) -> std::io::Result<()> {
     let mut file = File::create("day25.dot")?;
     write!(file, "graph G {{")?;
     for i in input {
@@ -50,26 +50,27 @@ impl Graph {
             edges: HashMap::new(),
         }
     }
-    fn insert_edge(&mut self, a: &String, b: &String) {
-        self.nodes.insert(a.clone());
-        self.nodes.insert(b.clone());
-        self.edges.entry(a.clone())
-            .and_modify(|e| {(*e).insert(b.clone());})
-            .or_insert(HashSet::from_iter([b.clone()]));
-        self.edges.entry(b.clone())
-            .and_modify(|e| {(*e).insert(a.clone());})
-            .or_insert(HashSet::from_iter([a.clone()]));
+    fn insert_edge(&mut self, a: &str, b: &str) {
+        self.nodes.insert(a.to_owned());
+        self.nodes.insert(b.to_owned());
+        self.edges.entry(a.to_owned())
+            .and_modify(|e| {(*e).insert(b.to_owned());})
+            .or_insert(HashSet::from_iter([b.to_owned()]));
+        self.edges.entry(b.to_owned())
+            .and_modify(|e| {(*e).insert(a.to_owned());})
+            .or_insert(HashSet::from_iter([a.to_owned()]));
     }
 
-    fn remove_edge(&mut self, a: &String, b: &String) {
+    fn remove_edge(&mut self, a: &str, b: &str) {
         self.edges.get_mut(a).unwrap().remove(b);
         self.edges.get_mut(b).unwrap().remove(a);
     }
 
-    fn count_nodes(&self, anchor: &String) -> usize {
+    fn count_nodes(&self, anchor: &str) -> usize {
         let mut visited: HashSet<String> = HashSet::new();
         let mut queue: Vec<&String> = Vec::new();
-        queue.push(anchor);
+        let anchor = anchor.to_owned();
+        queue.push(&anchor);
         while let Some(node) = queue.pop() {
             visited.insert(node.clone());
             self.edges[node].iter().for_each(|n| {
@@ -81,15 +82,15 @@ impl Graph {
         visited.len()
     }
 
-    fn path_between(&self, a: &String, b: &String) -> Option<Vec<String>> {
+    fn path_between(&self, a: &str, b: &str) -> Option<Vec<String>> {
         let mut queue: VecDeque<(String, Vec<String>)> = VecDeque::new();
         let mut traversed: HashSet<String> = HashSet::new();
-        queue.push_back((a.clone(), Vec::new()));
+        queue.push_back((a.to_owned(), Vec::new()));
         while let Some((node, path)) = queue.pop_front() {
             traversed.insert(node.clone());
             let mut path = path.clone();
             path.push(node.clone());
-            if node == *b {
+            if node == b {
                 return Some(path);
             }
             self.edges[&node].iter()
@@ -100,7 +101,7 @@ impl Graph {
     }
 }
 
-fn part1(input: &Vec<Input>) -> usize {
+fn part1(input: &[Input]) -> usize {
     // let _ = dot(input);
     let mut graph = Graph::new();
     for i in input.iter() {

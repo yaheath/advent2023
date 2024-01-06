@@ -4,11 +4,7 @@ use ya_advent_lib::read::read_input;
 use ya_advent_lib::grid::Grid;
 
 fn is_symbol(grid: &Grid<char>, x: i64, y: i64) -> bool {
-    match grid.get(x, y) {
-        '.' => false,
-        '0'..='9' => false,
-        _ => true,
-    }
+    !matches!(grid.get(x, y), '.' | '0'..='9')
 }
 
 fn is_gear(grid: &Grid<char>, x: i64, y: i64) -> bool {
@@ -51,7 +47,7 @@ fn get_number(grid: &Grid<char>, x: i64, y: i64, gear_map: &mut HashMap<(i64,i64
     (v, is_pn, next_x)
 }
 
-fn bothparts(input: &Vec<String>) -> (u64, u64) {
+fn bothparts(input: &[String]) -> (u64, u64) {
     let grid: Grid<char> = Grid::from_input(input, '.', 1);
     let mut sum = 0;
     let x_width = grid.x_bounds_orig().end;

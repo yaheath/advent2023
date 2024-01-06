@@ -10,7 +10,7 @@ struct Galaxies {
 }
 
 impl Galaxies {
-    fn from_input(input: &Vec<String>) -> Self {
+    fn from_input(input: &[String]) -> Self {
         let galaxies = HashSet::from_iter(
             input.iter()
                 .enumerate()
@@ -20,11 +20,11 @@ impl Galaxies {
         );
         let rows = BTreeSet::from_iter(
             galaxies.iter()
-            .map(|(_,y)| *y as i64)
+            .map(|(_,y)| *y)
         );
         let cols = BTreeSet::from_iter(
             galaxies.iter()
-            .map(|(x,_)| *x as i64)
+            .map(|(x,_)| *x)
         );
         Self {galaxies, rows, cols}
     }

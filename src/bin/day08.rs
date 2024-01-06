@@ -33,12 +33,12 @@ impl FromStr for Input {
     }
 }
 
-fn part1(input: &(Vec<String>, Vec<Input>)) -> usize {
-    let map: HashMap<String, &Input> = input.1.iter().map(|i| (i.id.clone(), i)).collect();
+fn part1(turns: &str, input: &[Input]) -> usize {
+    let map: HashMap<String, &Input> = input.iter().map(|i| (i.id.clone(), i)).collect();
     let mut steps = 0;
     let mut current = "AAA";
     let target = "ZZZ";
-    let mut diriter = input.0[0].chars().cycle();
+    let mut diriter = turns.chars().cycle();
     while current != target {
         let cur = map[current];
         current = match diriter.next().unwrap() {
@@ -51,12 +51,12 @@ fn part1(input: &(Vec<String>, Vec<Input>)) -> usize {
     steps
 }
 
-fn part2(input: &(Vec<String>, Vec<Input>)) -> usize {
-    let map: HashMap<String, &Input> = input.1.iter().map(|i| (i.id.clone(), i)).collect();
+fn part2(turns: &str, input: &[Input]) -> usize {
+    let map: HashMap<String, &Input> = input.iter().map(|i| (i.id.clone(), i)).collect();
     let mut steps = 0;
-    let initial = input.1.iter().filter(|i| i.id.ends_with('A')).map(|i| &i.id).collect::<Vec<_>>();
+    let initial = input.iter().filter(|i| i.id.ends_with('A')).map(|i| &i.id).collect::<Vec<_>>();
     let mut currents = initial.clone();
-    let mut diriter = input.0[0].chars().cycle();
+    let mut diriter = turns.chars().cycle();
     let mut cycles = vec![0; initial.len()];
 
     while cycles.iter().any(|n| *n == 0) {
@@ -76,13 +76,13 @@ fn part2(input: &(Vec<String>, Vec<Input>)) -> usize {
             }
         }
     }
-    cycles.into_iter().reduce(|a, b| lcm(a, b)).unwrap()
+    cycles.into_iter().reduce(lcm).unwrap()
 }
 
 fn main() {
-    let input: (Vec<String>, Vec<Input>) = read_sectioned_input();
-    println!("Part 1: {}", part1(&input));
-    println!("Part 2: {}", part2(&input));
+    let (turns, input): (Vec<String>, Vec<Input>) = read_sectioned_input();
+    println!("Part 1: {}", part1(&turns[0], &input));
+    println!("Part 2: {}", part2(&turns[0], &input));
 }
 
 #[cfg(test)]
@@ -92,7 +92,7 @@ mod tests {
 
     #[test]
     fn day08_test() {
-        let input: (Vec<String>, Vec<Input>) = sectioned_test_input(
+        let (turns, input): (Vec<String>, Vec<Input>) = sectioned_test_input(
 "RL
 
 AAA = (BBB, CCC)
@@ -103,8 +103,8 @@ EEE = (EEE, EEE)
 GGG = (GGG, GGG)
 ZZZ = (ZZZ, ZZZ)
 ");
-        assert_eq!(part1(&input), 2);
-        let input: (Vec<String>, Vec<Input>) = sectioned_test_input(
+        assert_eq!(part1(&turns[0], &input), 2);
+        let (turns, input): (Vec<String>, Vec<Input>) = sectioned_test_input(
 "LR
 
 11A = (11B, XXX)
@@ -116,6 +116,6 @@ ZZZ = (ZZZ, ZZZ)
 22Z = (22B, 22B)
 XXX = (XXX, XXX)
 ");
-        assert_eq!(part2(&input), 6);
+        assert_eq!(part2(&turns[0], &input), 6);
     }
 }

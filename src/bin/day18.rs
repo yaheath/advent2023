@@ -38,18 +38,18 @@ impl FromStr for Input {
     }
 }
 
-fn polygon_from_input(input: &Vec<Input>) -> Vec<Coord2D> {
+fn polygon_from_input(input: &[Input]) -> Vec<Coord2D> {
     let mut poly = Vec::new();
     let mut pos = Coord2D::new(0, 0);
     for i in input {
         pos += Into::<Coord2D>::into(i.dir) * i.steps;
-        poly.push(pos.clone());
+        poly.push(pos);
     }
     assert_eq!(poly[poly.len() - 1], Coord2D::new(0,0));
     poly
 }
 
-fn polygon_from_input_2(input: &Vec<Input>) -> Vec<Coord2D> {
+fn polygon_from_input_2(input: &[Input]) -> Vec<Coord2D> {
     let mut poly = Vec::new();
     let mut pos = Coord2D::new(0, 0);
     for i in input {
@@ -62,13 +62,13 @@ fn polygon_from_input_2(input: &Vec<Input>) -> Vec<Coord2D> {
             _ => panic!(),
         };
         pos += Into::<Coord2D>::into(dir) * dx;
-        poly.push(pos.clone());
+        poly.push(pos);
     }
     assert_eq!(poly[poly.len() - 1], Coord2D::new(0,0));
     poly
 }
 
-fn poly_area(poly: &Vec<Coord2D>) -> i64 {
+fn poly_area(poly: &[Coord2D]) -> i64 {
     let (sum1, sum2) = poly.iter()
         .circular_tuple_windows()
         .map(|(a, b)| (a.x * b.y, a.y * b.x))
@@ -81,13 +81,13 @@ fn poly_area(poly: &Vec<Coord2D>) -> i64 {
     intarea + edgearea
 }
 
-fn part1(input: &Vec<Input>) -> i64 {
-    let polygon = polygon_from_input(&input);
+fn part1(input: &[Input]) -> i64 {
+    let polygon = polygon_from_input(input);
     poly_area(&polygon)
 }
 
-fn part2(input: &Vec<Input>) -> i64 {
-    let polygon = polygon_from_input_2(&input);
+fn part2(input: &[Input]) -> i64 {
+    let polygon = polygon_from_input_2(input);
     poly_area(&polygon)
 }
 

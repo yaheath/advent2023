@@ -1,7 +1,7 @@
 use std::vec::Vec;
 use ya_advent_lib::read::read_input;
 
-fn part1(input: &Vec<String>) -> usize {
+fn part1(input: &[String]) -> usize {
     input[0].split_whitespace()
         .skip(1)
         .map(|s| s.parse::<u64>().unwrap())
@@ -13,13 +13,13 @@ fn part1(input: &Vec<String>) -> usize {
         .product()
 }
 
-fn part2(input: &Vec<String>) -> usize {
+fn part2(input: &[String]) -> usize {
     let t = input[0]
-        .split(':').skip(1).next().unwrap()
+        .split(':').nth(1).unwrap()
         .chars().filter(|c| *c != ' ')
         .collect::<String>().parse::<u64>().unwrap();
     let d = input[1]
-        .split(':').skip(1).next().unwrap()
+        .split(':').nth(1).unwrap()
         .chars().filter(|c| *c != ' ')
         .collect::<String>().parse::<u64>().unwrap();
     (1..t).map(|tt| (t-tt)*tt).filter(|&tt| tt > d).count()

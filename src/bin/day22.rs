@@ -55,8 +55,8 @@ struct Volume {
     blocks: HashMap<Coord3D, BrickIndex>,
 }
 impl Volume {
-    fn new(input: &Vec<Brick>) -> Self {
-        let bricks = input.clone();
+    fn new(input: &[Brick]) -> Self {
+        let bricks: Vec<Brick> = input.into();
         let mut ordered = Vec::from_iter(0..bricks.len());
         ordered.sort_by_key(|idx| bricks[*idx].pos.z);
         let blocks = HashMap::from_iter(
@@ -86,7 +86,7 @@ impl Volume {
             brick.supported_by = HashSet::from_iter(
                 foot.iter().map(|&&c| c + nc).filter_map(|c| self.blocks.get(&c)).copied()
             );
-            if brick.supported_by.len() > 0 {
+            if !brick.supported_by.is_empty() {
                 break;
             }
             brick.pos = nc;
@@ -117,7 +117,7 @@ impl Volume {
     }
 }
 
-fn setup(input: &Vec<Brick>) -> Volume {
+fn setup(input: &[Brick]) -> Volume {
     let mut volume = Volume::new(input);
     volume.drop();
     volume

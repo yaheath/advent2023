@@ -2,13 +2,13 @@ use std::str::FromStr;
 use std::vec::Vec;
 use ya_advent_lib::read::read_input;
 
-struct RGB {
+struct Rgb {
     red: usize,
     green: usize,
     blue: usize,
 }
 
-impl FromStr for RGB {
+impl FromStr for Rgb {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut red = 0;
@@ -24,13 +24,13 @@ impl FromStr for RGB {
                 _ => panic!(),
             };
         });
-        Ok(RGB { red, green, blue })
+        Ok(Rgb { red, green, blue })
     }
 }
 
 struct Game {
     id: usize,
-    sets: Vec<RGB>,
+    sets: Vec<Rgb>,
 }
 
 impl FromStr for Game {
@@ -38,7 +38,7 @@ impl FromStr for Game {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let g = s.split(": ").collect::<Vec<_>>();
         let id = g[0].split(' ').last().unwrap().parse::<usize>().unwrap();
-        let sets = g[1].split("; ").map(|x| x.parse::<RGB>().unwrap()).collect();
+        let sets = g[1].split("; ").map(|x| x.parse::<Rgb>().unwrap()).collect();
         Ok(Game{id, sets})
     }
 }
@@ -51,7 +51,7 @@ fn possible(game: &Game) -> bool {
         .all(|rgb| rgb.red <= r_thresh && rgb.green <= g_thresh && rgb.blue <= b_thresh)
 }
 
-fn part1(input: &Vec<Game>) -> usize {
+fn part1(input: &[Game]) -> usize {
     input.iter()
         .filter(|game| possible(game))
         .map(|game| game.id)
@@ -68,9 +68,9 @@ fn power(game: &Game) -> usize {
     r * g * b
 }
 
-fn part2(input: &Vec<Game>) -> usize {
+fn part2(input: &[Game]) -> usize {
     input.iter()
-        .map(|game| power(game))
+        .map(power)
         .sum()
 }
 

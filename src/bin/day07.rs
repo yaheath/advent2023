@@ -66,7 +66,7 @@ impl Hand {
         Self { cards, hand_type }
     }
     fn set_wild(&self) -> Self {
-        let mut cards = self.cards.clone();
+        let mut cards = self.cards;
         for c in cards.iter_mut() {
             if *c == Card::CJ {
                 *c = Card::CW;
@@ -79,7 +79,7 @@ impl Hand {
 impl FromStr for Hand {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let cards = s.chars().flat_map(|c| Card::from_char(c)).collect::<Vec<_>>();
+        let cards = s.chars().flat_map(Card::from_char).collect::<Vec<_>>();
         if cards.len() == 5 {
             Ok(Hand::new(
                 [cards[0], cards[1], cards[2], cards[3], cards[4]],
@@ -101,7 +101,7 @@ fn get_hand_type(cards: &[Card; 5]) -> HandType {
     if let Some(idx) = counts.iter().position(|tup| *tup.1 == Card::CW) {
         let nwilds = counts[idx].0;
         if nwilds >= 4 { return HandType::Five }
-        counts = counts.into_iter().filter(|tup| *tup.1 != Card::CW).collect();
+        counts.retain(|tup| *tup.1 != Card::CW);
         let end = counts.len() - 1;
         let tup = counts[end];
         counts[end] = (tup.0 + nwilds, tup.1);
@@ -160,8 +160,8 @@ impl FromStr for Input {
     }
 }
 
-fn part1(input: &Vec<Input>) -> usize {
-    let mut input: Vec<Input> = input.clone();
+fn part1(input: &[Input]) -> usize {
+    let mut input: Vec<Input> = input.into();
     input.sort_unstable_by(|a, b| a.hand.cmp(&b.hand));
     input.iter()
         .enumerate()
@@ -169,9 +169,10 @@ fn part1(input: &Vec<Input>) -> usize {
         .sum()
 }
 
-fn part2(input: &Vec<Input>) -> usize {
+fn part2(input: &[Input]) -> usize {
     let mut input: Vec<Input> = input.iter().map(|i|
-        Input { hand: i.hand.set_wild(), bid: i.bid }).collect();
+            Input { hand: i.hand.set_wild(), bid: i.bid }
+        ).collect();
     input.sort_unstable_by(|a, b| a.hand.cmp(&b.hand));
     input.iter()
         .enumerate()

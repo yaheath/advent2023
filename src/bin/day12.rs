@@ -102,13 +102,13 @@ impl<'a> Solver<'a> {
     }
 }
 
-fn part1(input: &Vec<Input>) -> usize {
+fn part1(input: &[Input]) -> usize {
     input.iter()
-        .map(|i| Solver::new(&i).solve())
+        .map(|i| Solver::new(i).solve())
         .sum()
 }
 
-fn part2(input: &Vec<Input>) -> usize {
+fn part2(input: &[Input]) -> usize {
     input.iter()
         .map(|i| i.expanded())
         .map(|i| Solver::new(&i).solve())

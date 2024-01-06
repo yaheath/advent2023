@@ -8,9 +8,9 @@ fn hash(s: &str) -> usize {
         .fold(0, |acc, n| ((acc + n) * 17) & 255)
 }
 
-fn part1(input: &Vec<String>) -> usize {
+fn part1(input: &[String]) -> usize {
     input.iter()
-        .map(|s| s.split(',').map(|ss| hash(ss)).sum::<usize>())
+        .map(|s| s.split(',').map(hash).sum::<usize>())
         .sum()
 }
 
@@ -67,7 +67,7 @@ impl FromStr for Input {
     }
 }
 
-fn part2(input: &Vec<String>) -> usize {
+fn part2(input: &[String]) -> usize {
     let mut boxes = vec![LensBox::new(); 256];
     input.iter()
         .flat_map(|s| s.split(',').map(|ss| ss.parse::<Input>().unwrap()))

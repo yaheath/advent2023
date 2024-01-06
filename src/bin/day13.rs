@@ -3,7 +3,7 @@ use itertools::Itertools;
 use ya_advent_lib::read::read_grouped_input;
 use ya_advent_lib::grid::Grid;
 
-fn mkgrid(inp: &Vec<String>) -> Grid<char> {
+fn mkgrid(inp: &[String]) -> Grid<char> {
     Grid::from_input(inp, '.', 0)
 }
 
@@ -74,21 +74,19 @@ fn check_symmetry(rows: &Vec<Vec<char>>, part2: bool) -> Option<usize> {
                 },
             }
         }
-        if good {
-            if !part2 || !check_for_smudge {
-                return Some(candidate);
-            }
+        if good && (!part2 || !check_for_smudge) {
+            return Some(candidate);
         }
     }
     None
 }
 
 fn find_reflection(grid: &Grid<char>, part2: bool) -> Reflection {
-    let rows = grid.rows();
+    let rows = grid.rows().collect();
     if let Some(n) = check_symmetry(&rows, part2) {
         return Reflection::Horiz(n);
     }
-    let rows = grid.cols();
+    let rows = grid.cols().collect();
     if let Some(n) = check_symmetry(&rows, part2) {
         return Reflection::Vert(n);
     }
@@ -96,17 +94,17 @@ fn find_reflection(grid: &Grid<char>, part2: bool) -> Reflection {
     panic!();
 }
 
-fn part1(input: &Vec<Vec<String>>) -> usize {
+fn part1(input: &[Vec<String>]) -> usize {
     input.iter()
-        .map(|i| mkgrid(i))
+        .map(|s| mkgrid(s))
         .map(|g| find_reflection(&g, false))
         .map(|r| r.value())
         .sum()
 }
 
-fn part2(input: &Vec<Vec<String>>) -> usize {
+fn part2(input: &[Vec<String>]) -> usize {
     input.iter()
-        .map(|i| mkgrid(i))
+        .map(|s| mkgrid(s))
         .map(|g| find_reflection(&g, true))
         .map(|r| r.value())
         .sum()

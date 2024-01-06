@@ -104,33 +104,30 @@ fn build_graph(grid: &Grid<Cell>, start: Coord2D, end: Coord2D, part2: bool) -> 
         }
         let nei = pos.neighbors4().into_iter()
             .filter(|c| grid.contains_coord(*c) && *c != anchor && *c != from)
-            .filter(|c| match grid.get_c(*c) {
-                Cell::Open => true,
-                Cell::Slope(_) => true,
-                _ => false,
-            })
+            .filter(|c| matches!(grid.get_c(*c), Cell::Open | Cell::Slope(_)))
             .collect::<Vec<_>>();
-        if nei.len() == 1 {
-            queue.push_back((anchor, pos, nei[0], steps + 1));
-        }
-        else if nei.len() > 1 {
-            graph.insert_edge(anchor, pos, steps);
-            for n in nei {
-                if !part2 {
-                    if match grid.get_c(n) {
-                        Cell::Open => false,
-                        Cell::Slope(d) if dir_from(pos, n) == d => false,
-                        _ => true,
-                    } { continue; }
+        match nei.len() {
+            1 => {
+                queue.push_back((anchor, pos, nei[0], steps + 1));
+            },
+            n if n > 1 => {
+                graph.insert_edge(anchor, pos, steps);
+                for n in nei {
+                    if !part2 && match grid.get_c(n) {
+                            Cell::Open => false,
+                            Cell::Slope(d) if dir_from(pos, n) == d => false,
+                            _ => true,
+                        } { continue; }
+                    queue.push_back((pos, pos, n, 1));
                 }
-                queue.push_back((pos, pos, n, 1));
-            }
+            },
+            _ => {},
         }
     }
     graph
 }
 
-fn run(input: &Vec<String>, part2: bool) -> usize {
+fn run(input: &[String], part2: bool) -> usize {
     let grid = Grid::from_input(input, Cell::Wall, 0);
     let start = Coord2D::new(1, 0);
     let end = Coord2D::new(grid.x_bounds().end - 2, grid.y_bounds().end - 1);
@@ -138,11 +135,11 @@ fn run(input: &Vec<String>, part2: bool) -> usize {
     graph.traverse(start, end)
 }
 
-fn part1(input: &Vec<String>) -> usize {
+fn part1(input: &[String]) -> usize {
     run(input, false)
 }
 
-fn part2(input: &Vec<String>) -> usize {
+fn part2(input: &[String]) -> usize {
     run(input, true)
 }
 

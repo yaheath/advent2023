@@ -56,12 +56,12 @@ fn calc_energized(grid: &Grid<char>, initial_loc: Coord2D, initial_dir: CDir) ->
     energized.len()
 }
 
-fn part1(input: &Vec<String>) -> usize {
+fn part1(input: &[String]) -> usize {
     let grid: Grid<char> = Grid::from_input(input, '.', 0);
     calc_energized(&grid, Coord2D::new(0,0), CDir::E)
 }
 
-fn part2(input: &Vec<String>) -> usize {
+fn part2(input: &[String]) -> usize {
     let grid: Grid<char> = Grid::from_input(input, '.', 0);
     [CDir::E, CDir::W, CDir::S, CDir::N]
         .into_iter()

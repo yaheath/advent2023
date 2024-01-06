@@ -34,14 +34,14 @@ impl Stone {
     }
 }
 
-fn num_2d_intersections(input: &Vec<Stone>, range: RangeInclusive<f64>) -> usize {
+fn num_2d_intersections(input: &[Stone], range: RangeInclusive<f64>) -> usize {
     input.iter()
         .tuple_combinations()
         .filter(|(a, b)| a.intersect_2d(b, &range))
         .count()
 }
 
-fn part1(input: &Vec<Stone>) -> usize {
+fn part1(input: &[Stone]) -> usize {
     num_2d_intersections(input, 200000000000000.0..=400000000000000.0)
 }
 
@@ -65,7 +65,7 @@ fn lin(r: f64, a: Point3D, s: f64, b: Point3D, t: f64, c: Point3D) -> Point3D {
     )
 }
 
-fn part2(input: &Vec<Stone>) -> i64 {
+fn part2(input: &[Stone]) -> i64 {
     /* this comes from:
 https://www.reddit.com/r/adventofcode/comments/18pnycy/comment/kersplf/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
     */

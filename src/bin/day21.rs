@@ -31,7 +31,7 @@ impl From<Cell> for char {
     }
 }
 
-pub fn mkgrid(input: &Vec<String>) -> Grid<Cell> {
+pub fn mkgrid(input: &[String]) -> Grid<Cell> {
     Grid::from_input(input, Cell::Plot, 0)
 }
 
@@ -63,7 +63,7 @@ where C: Into<Coord2D> {
     out
 }
 
-fn part1(input: &Vec<String>) -> usize {
+fn part1(input: &[String]) -> usize {
     let grid = mkgrid(input);
     let (x, y) = grid.find(|c,_,_| c == Cell::Start).unwrap();
     fill(&grid, (x, y), 64, false).len()
@@ -91,7 +91,7 @@ fn show(grid: &Grid<Cell>, steps: &HashSet<Coord2D>) {
                 print!("{}", c);
             }
         }
-        println!("");
+        println!();
     }
 }
 
@@ -101,14 +101,14 @@ where C: Into<Coord2D> + Copy {
     // size is 131x131, start point is at center (thus the 65),
     // and there's a clear path from the center to each edge,
     // and there are no rocks on the edge.
-    let v0 = fill(&grid, start, 65, true).len();
-    let v1 = fill(&grid, start, 65 + 131, true).len();
-    let v2 = fill(&grid, start, 65 + 131 * 2, true).len();
+    let v0 = fill(grid, start, 65, true).len();
+    let v1 = fill(grid, start, 65 + 131, true).len();
+    let v2 = fill(grid, start, 65 + 131 * 2, true).len();
     println!("{v0} {v1} {v2}");
     aitken_neville(v0, v1, v2, (maxsteps - 65) / 131)
 }
 
-fn part2(input: &Vec<String>) -> usize {
+fn part2(input: &[String]) -> usize {
     let grid = mkgrid(input);
     let (x, y) = grid.find(|c,_,_| c == Cell::Start).unwrap();
     bigfill(&grid, (x, y), 26501365)

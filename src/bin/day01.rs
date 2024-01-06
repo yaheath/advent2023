@@ -3,11 +3,11 @@ use itertools::Itertools;
 use ya_advent_lib::read::read_input;
 use ya_advent_lib::iter::FirstLast;
 
-fn part1(input: &Vec<String>) -> u64 {
+fn part1(input: &[String]) -> u64 {
     input.iter()
         .map(|s| {
             s.chars()
-                .filter(|&c| c >= '1' && c <= '9')
+                .filter(|&c| ('1'..='9').contains(&c))
                 .first_last()
                 .map(|(f,l)| (f as u64 - '0' as u64) * 10 + (l as u64 - '0' as u64))
                 .unwrap()
@@ -15,7 +15,7 @@ fn part1(input: &Vec<String>) -> u64 {
         .sum()
 }
 
-fn part2(input: &Vec<String>) -> u64 {
+fn part2(input: &[String]) -> u64 {
     input.iter()
         .map(|s| {
             [
@@ -24,8 +24,7 @@ fn part2(input: &Vec<String>) -> u64 {
                 ("one", 1), ("two", 2), ("three", 3), ("four", 4),
                 ("five", 5), ("six", 6), ("seven", 7), ("eight", 8), ("nine", 9),
             ].iter()
-                .map(|(k, v)| s.match_indices(k).map(move |(idx, _)| (idx, v)))
-                .flatten()
+                .flat_map(|(k, v)| s.match_indices(k).map(move |(idx, _)| (idx, v)))
                 .sorted_unstable_by_key(|t| t.0)
                 .map(|(_,v)| v)
                 .first_last()

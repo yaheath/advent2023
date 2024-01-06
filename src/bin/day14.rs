@@ -30,7 +30,7 @@ impl From<Cell> for char {
     }
 }
 
-fn mkgrid(input: &Vec<String>) -> Grid<Cell> {
+fn mkgrid(input: &[String]) -> Grid<Cell> {
     Grid::from_input(input, Cell::Empty, 0)
 }
 
@@ -59,9 +59,8 @@ fn tilt(grid: &mut Grid<Cell>, dir: CDir) {
     let yb = grid.y_bounds_xform(xform);
     for y in yb {
         for x in xb.clone() {
-            match grid.get_xform(x, y, xform) {
-                Cell::Round => move_rock(x, y, xform, grid),
-                _ => {},
+            if grid.get_xform(x, y, xform) == Cell::Round {
+                move_rock(x, y, xform, grid);
             }
         }
     }
@@ -75,7 +74,7 @@ fn weight(grid: &Grid<Cell>) -> i64 {
         .sum()
 }
 
-fn part1(input: &Vec<String>) -> i64 {
+fn part1(input: &[String]) -> i64 {
     let mut grid = mkgrid(input);
     tilt(&mut grid, CDir::N);
     //grid.print(|c| c.to_char());
@@ -90,7 +89,7 @@ fn str_to_grid(grid: &mut Grid<Cell>, s: &str) {
     grid.iter_mut().for_each(|c| *c = chars.next().unwrap().into());
 }
 
-fn part2(input: &Vec<String>) -> i64 {
+fn part2(input: &[String]) -> i64 {
     let mut grid = mkgrid(input);
     let mut list: Vec<String> = Vec::new();
     let mut found: HashMap<String,usize> = HashMap::new();

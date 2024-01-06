@@ -35,7 +35,7 @@ impl ValSeq {
     }
 }
 
-fn bothparts(input: &Vec<ValSeq>) -> (i64, i64) {
+fn bothparts(input: &[ValSeq]) -> (i64, i64) {
     input.iter()
         .map(|i| i.next_prev_val())
         .reduce(|a,b| (a.0+b.0, a.1+b.1))

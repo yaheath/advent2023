@@ -4,7 +4,6 @@ use std::str::FromStr;
 use std::vec::Vec;
 use itertools::Itertools;
 use ya_advent_lib::read::read_grouped_input;
-use ya_advent_lib::iter::FirstLast;
 
 #[derive(Debug)]
 struct SeedMapEntry {
@@ -55,7 +54,7 @@ impl Input {
         let mut path = HashMap::new();
         let mut maps = HashMap::new();
         for sect in input.iter().skip(1) {
-            let (frm, to) = sect[0].split(' ').next().unwrap().split("-to-").first_last().unwrap();
+            let (frm, to) = sect[0].split(' ').next().unwrap().split_once("-to-").unwrap();
             path.insert(frm.into(), to.into());
             let mut v:Vec<SeedMapEntry> = sect.iter()
                 .skip(1)
@@ -98,16 +97,14 @@ impl Input {
                         cur_range.push_front(r.start + len .. r.end);
                     }
                 }
+                else if let Some(nxt) = map.iter().find(|m| m.from.start > r.start) {
+                    next_range.push(r.start .. r.end.min(nxt.from.start));
+                    if r.end < nxt.from.start {
+                        cur_range.push_front(r.end .. nxt.from.start);
+                    }
+                }
                 else {
-                    if let Some(nxt) = map.iter().find(|m| m.from.start > r.start) {
-                        next_range.push(r.start .. r.end.min(nxt.from.start));
-                        if r.end < nxt.from.start {
-                            cur_range.push_front(r.end .. nxt.from.start);
-                        }
-                    }
-                    else {
-                        next_range.push(r);
-                    }
+                    next_range.push(r);
                 }
             }
             current = next;
@@ -135,7 +132,8 @@ fn part2(input: &Input) -> u64 {
 }
 
 fn main() {
-    let input = Input::from_input(read_grouped_input());
+    let input: Vec<Vec<String>> = read_grouped_input();
+    let input = Input::from_input(input);
     println!("Part 1: {}", part1(&input));
     println!("Part 2: {}", part2(&input));
 }

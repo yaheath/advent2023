@@ -39,29 +39,29 @@ struct PipeMap {
 }
 
 impl PipeMap {
-    fn from_input(input: &Vec<String>) -> Self {
+    fn from_input(input: &[String]) -> Self {
         let mut grid = Grid::from_input(input, Cell::Ground, 1);
         let start_pos = grid.iter_with_coord()
             .find(|(c,_,_)| *c == Cell::Start)
             .map(|(_,x,y)| Coord2D::new(x,y))
             .unwrap();
 
-        let conn_n = match grid.get_c(start_pos + Coord2D::new(0, -1)) {
-            Cell::PipeNS|Cell::PipeSE|Cell::PipeSW => true,
-            _ => false,
-        };
-        let conn_s = match grid.get_c(start_pos + Coord2D::new(0, 1)) {
-            Cell::PipeNS|Cell::PipeNE|Cell::PipeNW => true,
-            _ => false,
-        };
-        let conn_e = match grid.get_c(start_pos + Coord2D::new(1, 0)) {
-            Cell::PipeEW|Cell::PipeNW|Cell::PipeSW => true,
-            _ => false,
-        };
-        let conn_w = match grid.get_c(start_pos + Coord2D::new(-1, 0)) {
-            Cell::PipeEW|Cell::PipeNE|Cell::PipeSE => true,
-            _ => false,
-        };
+        let conn_n = matches!(
+            grid.get_c(start_pos + Coord2D::new(0, -1)),
+            Cell::PipeNS|Cell::PipeSE|Cell::PipeSW,
+        );
+        let conn_s = matches!(
+            grid.get_c(start_pos + Coord2D::new(0, 1)),
+            Cell::PipeNS|Cell::PipeNE|Cell::PipeNW,
+        );
+        let conn_e = matches!(
+            grid.get_c(start_pos + Coord2D::new(1, 0)),
+            Cell::PipeEW|Cell::PipeNW|Cell::PipeSW,
+        );
+        let conn_w = matches!(
+            grid.get_c(start_pos + Coord2D::new(-1, 0)),
+            Cell::PipeEW|Cell::PipeNE|Cell::PipeSE,
+        );
         let replace = match (conn_n, conn_s, conn_e, conn_w) {
             (true, true, false, false) => Cell::PipeNS,
             (false, false, true, true) => Cell::PipeEW,
@@ -88,10 +88,8 @@ impl PipeMap {
                         _ => {},
                     }
                 }
-                else {
-                    if inside {
-                        interior.insert(loc);
-                    }
+                else if inside {
+                    interior.insert(loc);
                 }
             }
         }
@@ -126,12 +124,12 @@ fn find_path(grid: &Grid<Cell>, start_pos: Coord2D) -> HashMap<Coord2D, usize> {
     path
 }
 
-fn part1(input: &Vec<String>) -> usize {
+fn part1(input: &[String]) -> usize {
     let map = PipeMap::from_input(input);
     map.path.into_values().max().unwrap()
 }
 
-fn part2(input: &Vec<String>) -> usize {
+fn part2(input: &[String]) -> usize {
     let map = PipeMap::from_input(input);
     let interior = map.find_interior();
     interior.len()

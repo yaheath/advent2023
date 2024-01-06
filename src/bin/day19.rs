@@ -122,7 +122,7 @@ impl Part {
         loop {
             let wf = workflows[&current];
             let r_or_d = wf.rules.iter().find(|rd| match rd {
-                RuleOrDest::R(r) => r.matches(&self),
+                RuleOrDest::R(r) => r.matches(self),
                 RuleOrDest::D(_) => true,
             }).unwrap();
             let dest = match r_or_d {

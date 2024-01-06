@@ -11,7 +11,7 @@ struct Input {
 impl FromStr for Input {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.split(": ").skip(1).next().unwrap();
+        let s = s.split(": ").nth(1).unwrap();
         let mut itr = s.split(" | ");
         let winners = itr.next().unwrap().split_whitespace()
             .map(|s| s.parse::<u32>().unwrap())
@@ -23,14 +23,14 @@ impl FromStr for Input {
     }
 }
 
-fn part1(input: &Vec<Input>) -> u32 {
+fn part1(input: &[Input]) -> u32 {
     input.iter()
         .map(|card| card.winners.intersection(&card.have).count())
         .map(|c| match c { 0 => 0, n => 2u32.pow(n as u32 - 1) })
         .sum()
 }
 
-fn part2(input: &Vec<Input>) -> usize {
+fn part2(input: &[Input]) -> usize {
     let mut counts: Vec<usize> = vec![1; input.len()];
 
     input.iter()
